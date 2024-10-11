@@ -1,15 +1,20 @@
-# Step 1: Use an official OpenJDK image with Java 17
-FROM eclipse-temurin:17-jdk-alpine
+# Use a more recent Maven image with OpenJDK 17 for building the project
+FROM maven:3.8.4-openjdk-17 AS build
 
-# Step 2: Set the working directory in the container
-WORKDIR /app
+# Copy the Maven project files
+COPY . .
 
-# Step 3: Copy the .jar file from the target directory to the container
-# Replace 'your-app-name-0.0.1-SNAPSHOT.jar' with the actual file name of your jar
-COPY target/demo-0.0.1-SNAPSHOT.jar /app/app.jar
+# Build the project and skip tests
+RUN mvn clean package -DskipTests
 
-# Step 4: Expose the port the app will run on
+# Use OpenJDK 17 runtime image for running the application
+FROM openjdk:17.0.1-jdk-slim
+
+# Copy the JAR file from the build stage
+COPY --from=build /target/demo-0.0.1-SNAPSHOT.jar demo.jar
+
+# Expose port 8080 for the application
 EXPOSE 8080
 
-# Step 5: Start the Spring Boot application
-ENTRYPOINT ["java", "-jar", "/app/app.jar"]
+# Run the JAR file
+ENTRYPOINT ["java", "-jar", "demo.jar"]
