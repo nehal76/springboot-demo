@@ -39,6 +39,10 @@ public class MyController {
 
     // Store form submissions in memory
     private List<QueryForm> formSubmissions = new ArrayList<>();
+    @GetMapping("/")
+    public String sayyHello() {
+        return "Hello, This is my Home page";
+    }
 
     @GetMapping("/hello")
     public String sayHello() {
